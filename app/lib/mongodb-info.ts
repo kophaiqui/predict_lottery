@@ -1,7 +1,7 @@
-﻿import type { DashboardSnapshot } from "./types";
+import type { DashboardSnapshot } from "./types";
 
 export function buildMongoSummary(snapshot: DashboardSnapshot): string {
-  return `MongoDB Atlas sáºµn sÃ ng Ä‘á»“ng bá»™ ${snapshot.draws.length} ká»³ quay vÃ  ${snapshot.predictions.length} dá»± Ä‘oÃ¡n.`;
+  return `MongoDB Atlas sẵn sàng đồng bộ ${snapshot.draws.length} kỳ quay và ${snapshot.predictions.length} dự đoán.`;
 }
 
 export function getMongoSchema(): string {
@@ -106,4 +106,3 @@ backtestResults
   createdAt
 }`;
 }
-

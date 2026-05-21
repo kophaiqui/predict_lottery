@@ -92,10 +92,15 @@ export async function upsertActualDraws(draws: DrawRecord[]) {
   let skipped = 0;
 
   for (const draw of draws) {
-    const existing = await collection.findOne({ lotteryType: draw.lotteryType, drawId: draw.drawId });
+    const [existingById, existingByDate] = await Promise.all([
+      collection.findOne({ lotteryType: draw.lotteryType, drawId: draw.drawId }),
+      collection.findOne({ lotteryType: draw.lotteryType, drawDate: draw.drawDate }),
+    ]);
+    const existing = existingById ?? existingByDate;
     const now = new Date().toISOString();
     const isSame =
       Boolean(existing) &&
+      existing?.drawId === draw.drawId &&
       existing?.drawDate === draw.drawDate &&
       JSON.stringify(existing?.numbers ?? []) === JSON.stringify(draw.numbers) &&
       JSON.stringify(existing?.bonusNumbers ?? []) === JSON.stringify(draw.bonusNumbers) &&
@@ -109,8 +114,14 @@ export async function upsertActualDraws(draws: DrawRecord[]) {
       continue;
     }
 
+    await collection.deleteMany({
+      lotteryType: draw.lotteryType,
+      drawDate: draw.drawDate,
+      drawId: { $ne: draw.drawId },
+    });
+
     await collection.updateOne(
-      { lotteryType: draw.lotteryType, drawId: draw.drawId },
+      existing ? { _id: existing._id } : { lotteryType: draw.lotteryType, drawId: draw.drawId },
       {
         $set: {
           ...draw,
@@ -132,6 +143,39 @@ export async function readActualDraws(lotteryType?: DrawRecord["lotteryType"]) {
   const db = await ensureMongoReady();
   const query = lotteryType ? { lotteryType } : {};
   return db.collection<DrawRecord>(COLLECTIONS.actualDraws).find(query).sort({ drawDate: -1 }).toArray();
+}
+
+export async function deleteActualDraws(lotteryType: DrawRecord["lotteryType"]) {
+  const db = await ensureMongoReady();
+  const result = await db.collection<DrawRecord>(COLLECTIONS.actualDraws).deleteMany({ lotteryType });
+  return result.deletedCount;
+}
+
+export async function replaceActualDraws(lotteryType: DrawRecord["lotteryType"], draws: DrawRecord[]) {
+  const db = await ensureMongoReady();
+  const collection = db.collection<DrawRecord>(COLLECTIONS.actualDraws);
+  const deletedResult = await collection.deleteMany({ lotteryType });
+
+  if (!draws.length) {
+    return { deleted: deletedResult.deletedCount, inserted: 0, updated: 0, skipped: 0 };
+  }
+
+  const now = new Date().toISOString();
+  const insertResult = await collection.insertMany(
+    draws.map((draw) => ({
+      ...draw,
+      createdAt: draw.createdAt ?? now,
+      updatedAt: now,
+    })),
+    { ordered: false },
+  );
+
+  return {
+    deleted: deletedResult.deletedCount,
+    inserted: insertResult.insertedCount,
+    updated: 0,
+    skipped: 0,
+  };
 }
 
 export async function upsertGeneratedPrediction(prediction: PredictionRecord) {

@@ -2,7 +2,7 @@ import "server-only";
 
 import { LOTTERY_CONFIG } from "./lottery-config";
 import { createId, formatDate, uniqueSorted } from "./number-utils";
-import { upsertActualDraws } from "./mongodb";
+import { replaceActualDraws, upsertActualDraws } from "./mongodb";
 import type { DrawRecord, LotteryType } from "./types";
 import { VIETLOTT_DATA_SOURCES, type VietlottDataLotteryType } from "./vietlott-data-config";
 
@@ -94,7 +94,7 @@ function normalizeJsonRows(parsed: unknown): Record<string, unknown>[] {
   }
 
   const record = parsed as Record<string, unknown>;
-  for (const key of ["data", "rows", "items", "results", "result"] as const) {
+  for (const key of ["data", "rows", "items", "results"] as const) {
     const value = record[key];
     if (Array.isArray(value)) {
       return value.flatMap((item) => normalizeJsonRows(item));
@@ -163,9 +163,11 @@ function normalizeDrawRow(
   );
 
   const numbers = uniqueSorted(resultValues.slice(0, config.pickCount)).filter((number) => number >= 1 && number <= config.maxNumber);
-  const bonusNumbers = uniqueSorted(
-    explicitBonusNumbers.length ? explicitBonusNumbers : resultValues.slice(config.pickCount),
-  ).filter((number) => number >= 1 && number <= config.maxNumber);
+  const bonusNumbers = config.hasBonus
+    ? uniqueSorted(
+        explicitBonusNumbers.length ? explicitBonusNumbers : resultValues.slice(config.pickCount),
+      ).filter((number) => number >= 1 && number <= config.maxNumber)
+    : [];
 
   if (!drawDate || !rawDrawId || numbers.length !== config.pickCount) {
     return null;
@@ -191,7 +193,10 @@ function normalizeDrawRow(
   };
 }
 
-export async function importVietlottData(lotteryType: VietlottDataLotteryType) {
+export async function importVietlottData(
+  lotteryType: VietlottDataLotteryType,
+  options: { replaceExisting?: boolean; latestCount?: number } = {},
+) {
   const source = VIETLOTT_DATA_SOURCES[lotteryType];
   const response = await fetch(source.rawUrl, {
     headers: {
@@ -212,16 +217,28 @@ export async function importVietlottData(lotteryType: VietlottDataLotteryType) {
 
   const unique = new Map<string, DrawRecord>();
   for (const record of normalized) {
-    unique.set(`${record.lotteryType}:${record.drawId}`, record);
+    unique.set(`${record.lotteryType}:${record.drawDate}`, record);
   }
 
-  const records = [...unique.values()].sort((a, b) => a.drawDate.localeCompare(b.drawDate));
-  const result = await upsertActualDraws(records);
+  const allRecords = [...unique.values()].sort((a, b) => a.drawDate.localeCompare(b.drawDate));
+  const records =
+    options.latestCount && options.latestCount > 0
+      ? allRecords.slice(-options.latestCount)
+      : allRecords;
+  if (!records.length) {
+    throw new Error(`No valid records parsed from ${source.rawUrl}`);
+  }
+
+  const result = options.replaceExisting
+    ? await replaceActualDraws(lotteryType as LotteryType, records)
+    : { deleted: 0, ...(await upsertActualDraws(records)) };
   const latestDrawDate = records.at(-1)?.drawDate ?? null;
 
   return {
     lotteryType,
     sourceUrl: source.rawUrl,
+    replaced: options.replaceExisting ?? false,
+    deleted: result.deleted,
     records,
     inserted: result.inserted,
     updated: result.updated,

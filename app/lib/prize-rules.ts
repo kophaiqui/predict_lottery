@@ -1,19 +1,19 @@
-﻿import type { DrawRecord, LotteryType, PrizeEvaluation, PrizeRule } from "./types";
+import type { DrawRecord, LotteryType, PrizeEvaluation, PrizeRule } from "./types";
 
 export const PRIZE_RULES: Record<LotteryType, PrizeRule[]> = {
   mega645: [
     { match: 6, bonusMatch: 0, tier: "Jackpot" },
-    { match: 5, bonusMatch: 0, tier: "Giáº£i nháº¥t" },
-    { match: 4, bonusMatch: 0, tier: "Giáº£i nhÃ¬" },
-    { match: 3, bonusMatch: 0, tier: "Giáº£i ba" },
+    { match: 5, bonusMatch: 0, tier: "Giải nhất" },
+    { match: 4, bonusMatch: 0, tier: "Giải nhì" },
+    { match: 3, bonusMatch: 0, tier: "Giải ba" },
   ],
   power655: [
     { match: 6, bonusMatch: 1, tier: "Jackpot" },
-    { match: 5, bonusMatch: 1, tier: "Giáº£i nháº¥t" },
-    { match: 5, bonusMatch: 0, tier: "Giáº£i nhÃ¬" },
-    { match: 4, bonusMatch: 1, tier: "Giáº£i ba" },
-    { match: 4, bonusMatch: 0, tier: "Giáº£i tÆ°" },
-    { match: 3, bonusMatch: 1, tier: "Giáº£i nÄƒm" },
+    { match: 5, bonusMatch: 1, tier: "Giải nhất" },
+    { match: 5, bonusMatch: 0, tier: "Giải nhì" },
+    { match: 4, bonusMatch: 1, tier: "Giải ba" },
+    { match: 4, bonusMatch: 0, tier: "Giải tư" },
+    { match: 3, bonusMatch: 1, tier: "Giải năm" },
   ],
   power535: [
     { match: 5, bonusMatch: 0, tier: "Jackpot" },
@@ -22,8 +22,8 @@ export const PRIZE_RULES: Record<LotteryType, PrizeRule[]> = {
   ],
   max3d: [
     { match: 3, bonusMatch: 0, tier: "Jackpot" },
-    { match: 2, bonusMatch: 0, tier: "Giáº£i nháº¥t" },
-    { match: 1, bonusMatch: 0, tier: "Giáº£i nhÃ¬" },
+    { match: 2, bonusMatch: 0, tier: "Giải nhất" },
+    { match: 1, bonusMatch: 0, tier: "Giải nhì" },
   ],
 };
 
@@ -57,17 +57,17 @@ function estimatePrizeAmount(lotteryType: LotteryType, tier: string): number {
   const table: Record<LotteryType, Record<string, number>> = {
     mega645: {
       Jackpot: 12000000000,
-      "Giáº£i nháº¥t": 10000000,
-      "Giáº£i nhÃ¬": 300000,
-      "Giáº£i ba": 30000,
+      "Giải nhất": 10000000,
+      "Giải nhì": 300000,
+      "Giải ba": 30000,
     },
     power655: {
       Jackpot: 18000000000,
-      "Giáº£i nháº¥t": 15000000,
-      "Giáº£i nhÃ¬": 500000,
-      "Giáº£i ba": 50000,
-      "Giáº£i tÆ°": 40000,
-      "Giáº£i nÄƒm": 30000,
+      "Giải nhất": 15000000,
+      "Giải nhì": 500000,
+      "Giải ba": 50000,
+      "Giải tư": 40000,
+      "Giải năm": 30000,
     },
     power535: {
       Jackpot: 10000000,
@@ -76,12 +76,11 @@ function estimatePrizeAmount(lotteryType: LotteryType, tier: string): number {
     },
     max3d: {
       Jackpot: 10000000,
-      "Giáº£i nháº¥t": 1000000,
-      "Giáº£i nhÃ¬": 100000,
+      "Giải nhất": 1000000,
+      "Giải nhì": 100000,
     },
   };
 
   return table[lotteryType][tier] ?? 0;
 }
-
 

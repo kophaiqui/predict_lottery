@@ -67,26 +67,31 @@ export function writeSnapshotToStorage(snapshot: DashboardSnapshot): void {
   saveSnapshot(snapshot);
 }
 
+function drawDateKey(draw: DrawRecord) {
+  return `${draw.lotteryType}:${draw.drawDate}`;
+}
+
 export function mergeDraws(existing: DrawRecord[], next: DrawRecord[]): { draws: DrawRecord[]; added: number; updated: number } {
-  const byId = new Map(existing.map((draw) => [draw.drawId, draw]));
+  const byDate = new Map(existing.map((draw) => [drawDateKey(draw), draw]));
   let added = 0;
   let updated = 0;
 
   for (const draw of next) {
-    if (byId.has(draw.drawId)) {
-      const current = byId.get(draw.drawId);
+    const key = drawDateKey(draw);
+    if (byDate.has(key)) {
+      const current = byDate.get(key);
       if (current && JSON.stringify(current) !== JSON.stringify(draw)) {
-        byId.set(draw.drawId, draw);
+        byDate.set(key, draw);
         updated += 1;
       }
     } else {
-      byId.set(draw.drawId, draw);
+      byDate.set(key, draw);
       added += 1;
     }
   }
 
   return {
-    draws: Array.from(byId.values()).sort((a, b) => a.drawDate.localeCompare(b.drawDate)),
+    draws: Array.from(byDate.values()).sort((a, b) => a.drawDate.localeCompare(b.drawDate)),
     added,
     updated,
   };
