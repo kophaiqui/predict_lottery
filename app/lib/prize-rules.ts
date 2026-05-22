@@ -83,4 +83,3 @@ function estimatePrizeAmount(lotteryType: LotteryType, tier: string): number {
 
   return table[lotteryType][tier] ?? 0;
 }
-
