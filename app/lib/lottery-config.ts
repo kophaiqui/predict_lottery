@@ -70,6 +70,22 @@ export const LOTTERY_CONFIG: Record<LotteryType, LotteryConfig> = {
     },
     notes: "Dữ liệu 3D có cấu trúc giải riêng, chưa dùng trong import mặc định.",
   },
+  keno: {
+    type: "keno",
+    name: "Keno",
+    sourceUrl: "https://raw.githubusercontent.com/vietvudanh/vietlott-data/main/data/keno.jsonl",
+    maxNumber: 80,
+    pickCount: 10,
+    drawCount: 20,
+    hasBonus: false,
+    drawDays: [1, 2, 3, 4, 5, 6, 7],
+    sourceFormat: "json",
+    resultSelectorMap: {
+      date: "regex:(\\d{2}/\\d{2}/\\d{4})",
+      numbers: "regex:(?:\\b\\d{1,2}\\b(?:\\s*[-,;|]\\s*\\b\\d{1,2}\\b){19,})",
+    },
+    notes: "Keno quay 20 số từ 1-80, mỗi ngày nhiều kỳ. pickCount=10 là số cược của người chơi.",
+  },
 };
 
 export const LOTTERY_TYPES = Object.keys(LOTTERY_CONFIG) as LotteryType[];

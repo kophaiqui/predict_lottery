@@ -1,4 +1,4 @@
-export type LotteryType = "mega645" | "power655" | "power535" | "max3d";
+export type LotteryType = "mega645" | "power655" | "power535" | "max3d" | "keno";
 
 export type ConfidenceLabel = "Low" | "Medium" | "High";
 export type PredictionStatus = "pending" | "checked";
@@ -22,6 +22,7 @@ export interface LotteryConfig {
   sourceUrl: string;
   maxNumber: number;
   pickCount: number;
+  drawCount?: number;
   hasBonus: boolean;
   bonusName?: string;
   drawDays: number[];

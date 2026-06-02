@@ -17,6 +17,12 @@ export const VIETLOTT_DATA_SOURCES = {
     maxNumber: 35,
     rawUrl: "https://raw.githubusercontent.com/vietvudanh/vietlott-data/main/data/power535.jsonl",
   },
+  keno: {
+    productName: "Keno",
+    pickCount: 20,
+    maxNumber: 80,
+    rawUrl: "https://raw.githubusercontent.com/vietvudanh/vietlott-data/main/data/keno.jsonl",
+  },
 } as const;
 
 export type VietlottDataLotteryType = keyof typeof VIETLOTT_DATA_SOURCES;

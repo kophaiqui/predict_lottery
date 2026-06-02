@@ -25,12 +25,13 @@ export function validateCrawlBatch(params: {
       issues.push(issue("duplicate-draw", "warn", `Trùng kỳ quay: ${record.drawId}`));
     }
 
-    if (record.numbers.length !== config.pickCount) {
+    const expectedCount = config.drawCount ?? config.pickCount;
+    if (record.numbers.length !== expectedCount) {
       issues.push(
         issue(
           "invalid-number-count",
           "error",
-          `Sai số lượng số: ${record.drawId} có ${record.numbers.length}, expected ${config.pickCount}`,
+          `Sai số lượng số: ${record.drawId} có ${record.numbers.length}, expected ${expectedCount}`,
         ),
       );
     }

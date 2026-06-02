@@ -25,6 +25,14 @@ export const PRIZE_RULES: Record<LotteryType, PrizeRule[]> = {
     { match: 2, bonusMatch: 0, tier: "Giải nhất" },
     { match: 1, bonusMatch: 0, tier: "Giải nhì" },
   ],
+  keno: [
+    { match: 10, bonusMatch: 0, tier: "Jackpot" },
+    { match: 9, bonusMatch: 0, tier: "Giải nhất" },
+    { match: 8, bonusMatch: 0, tier: "Giải nhì" },
+    { match: 7, bonusMatch: 0, tier: "Giải ba" },
+    { match: 6, bonusMatch: 0, tier: "Giải tư" },
+    { match: 5, bonusMatch: 0, tier: "Giải năm" },
+  ],
 };
 
 export function evaluatePrizeTier(params: {
@@ -78,6 +86,14 @@ function estimatePrizeAmount(lotteryType: LotteryType, tier: string): number {
       Jackpot: 10000000,
       "Giải nhất": 1000000,
       "Giải nhì": 100000,
+    },
+    keno: {
+      Jackpot: 2000000000,
+      "Giải nhất": 10000000,
+      "Giải nhì": 1000000,
+      "Giải ba": 200000,
+      "Giải tư": 30000,
+      "Giải năm": 5000,
     },
   };
 

@@ -19,6 +19,7 @@ import type {
   PredictionSet,
   PurchasedSet,
 } from "@/app/lib/types";
+import { ArrowsClockwise, ChartLineUp, Gear, HouseLine, Lightning, Ticket } from "@phosphor-icons/react";
 
 const importableLotteryTypes = Object.keys(VIETLOTT_DATA_SOURCES) as LotteryType[];
 
@@ -31,7 +32,7 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 const dashboardNav = ["dashboard", "purchased", "analytics", "settings"] as const;
 type DashboardNavKey = (typeof dashboardNav)[number];
-const personalLotteryTypes: LotteryType[] = ["power655", "mega645", "power535"];
+const personalLotteryTypes: LotteryType[] = ["power655", "mega645", "power535", "keno"];
 
 interface PurchaseDraft {
   targetDrawDate: string;
@@ -871,11 +872,18 @@ export default function Dashboard() {
     analytics: "Insights",
     settings: "Settings",
   };
+  const navIcons: Record<DashboardNavKey, React.ReactNode> = {
+    dashboard: <HouseLine size={15} weight="duotone" />,
+    purchased: <Ticket size={15} weight="duotone" />,
+    analytics: <ChartLineUp size={15} weight="duotone" />,
+    settings: <Gear size={15} weight="duotone" />,
+  };
   const lotteryCardLabel: Record<LotteryType, string> = {
     power655: "Power 6/55",
     mega645: "Mega 6/45",
     power535: "Power 5/35",
     max3d: "Max 3D",
+    keno: "Keno",
   };
   const qualitySummary = summarizeQuality(qualityReport);
 
@@ -883,9 +891,14 @@ export default function Dashboard() {
     <main className="min-h-screen bg-[#151718] text-[#f4f4f5]">
       <div className="mx-auto grid min-h-screen w-full max-w-none grid-cols-1 gap-4 px-4 py-5 lg:grid-cols-[minmax(180px,15%)_minmax(0,85%)]">
         <aside className="h-fit min-w-0 rounded-lg border border-[#33383b] bg-[#1d2022] p-3 shadow-sm">
-          <div className="px-2 py-3">
-            <div className="text-xs uppercase text-[#a1a1aa]">Predict Lottery</div>
-            <div className="mt-1 text-lg font-semibold">{LOTTERY_CONFIG[selectedLotteryType].name}</div>
+          <div className="border-b border-[#33383b] px-2 pb-3 pt-2">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded bg-emerald-400 text-emerald-950">
+                <Lightning size={13} weight="fill" />
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-[#a1a1aa]">Lottery Lab</span>
+            </div>
+            <div className="mt-2 text-sm font-semibold text-[#f4f4f5]">{LOTTERY_CONFIG[selectedLotteryType].name}</div>
           </div>
           <nav className="mt-2 space-y-1">
             {dashboardNav.map((item) => (
@@ -893,10 +906,11 @@ export default function Dashboard() {
                 key={item}
                 type="button"
                 onClick={() => setActiveNav(item)}
-                className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium transition ${
-                  activeNav === item ? "bg-[#4ade80] text-[#052e16]" : "text-[#d4d4d8] hover:bg-[#272b2e]"
+                className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors duration-150 ${
+                  activeNav === item ? "bg-emerald-500/10 text-emerald-300" : "text-[#a1a1aa] hover:bg-white/5 hover:text-[#e4e4e7]"
                 }`}
               >
+                {navIcons[item]}
                 {navLabel[item]}
               </button>
             ))}
@@ -910,7 +924,7 @@ export default function Dashboard() {
                 <h1 className="text-xl font-semibold">{navLabel[activeNav]}</h1>
                 <div className="mt-1 text-sm text-[#a1a1aa]">{selectedDraws.length} draws tracked for {currentConfig.name}</div>
               </div>
-              <div className={`rounded-md border px-3 py-2 text-sm ${
+              <div className={`rounded-md border px-3 py-2 text-sm transition-colors duration-200 ${
                 crawlStatus === "error"
                   ? "border-red-500/40 bg-red-500/10 text-red-200"
                   : crawlStatus === "success"
@@ -941,7 +955,7 @@ export default function Dashboard() {
                   return (
                     <article
                       key={type}
-                      className={`min-w-0 rounded-lg border bg-[#1d2022] p-4 shadow-sm ${active ? "border-[#4ade80]" : "border-[#33383b]"}`}
+                      className={`min-w-0 rounded-lg border bg-[#1d2022] p-4 shadow-sm ${active ? "border-emerald-400/70 shadow-[0_0_20px_rgba(74,222,128,0.07)]" : "border-[#33383b] hover:border-[#4a5568]"}`}
                     >
                       <button type="button" onClick={() => setSelectedLotteryType(type)} className="w-full text-left">
                         <div className="flex items-start justify-between gap-3">
@@ -977,8 +991,8 @@ export default function Dashboard() {
                         </div>
                       </button>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <button type="button" onClick={() => handleGeneratePredictionForLottery(type)} className="rounded-md bg-[#4ade80] px-3 py-2 text-sm font-semibold text-[#052e16]">Predict</button>
-                        <button type="button" onClick={() => void handleUpdateHistoryForLottery(type)} className="rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold text-[#d4d4d8]">Update</button>
+                        <button type="button" onClick={() => handleGeneratePredictionForLottery(type)} className="flex items-center gap-1.5 rounded-md bg-emerald-400 px-3 py-2 text-sm font-semibold text-emerald-950 transition-colors duration-150 hover:bg-emerald-300 active:scale-[0.98]"><Lightning size={13} weight="fill" />Predict</button>
+                        <button type="button" onClick={() => void handleUpdateHistoryForLottery(type)} className="flex items-center gap-1.5 rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5"><ArrowsClockwise size={13} />Update</button>
                       </div>
                     </article>
                   );
@@ -990,9 +1004,9 @@ export default function Dashboard() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-lg font-semibold">{currentConfig.name}</h2>
                     <div className="flex flex-wrap gap-2">
-                      <button type="button" onClick={() => void handleUpdateAllPersonalHistory()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold">Update all</button>
-                      <button type="button" onClick={() => void handleUpdateSelectedHistory()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold">Update history</button>
-                      <button type="button" onClick={openHistoryDialog} className="rounded-md bg-[#f97316] px-3 py-2 text-sm font-semibold text-[#052e16]">Add draw</button>
+                      <button type="button" onClick={() => void handleUpdateAllPersonalHistory()} className="flex items-center gap-1.5 rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5"><ArrowsClockwise size={13} />Update all</button>
+                      <button type="button" onClick={() => void handleUpdateSelectedHistory()} className="flex items-center gap-1.5 rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5"><ArrowsClockwise size={13} />Update history</button>
+                      <button type="button" onClick={openHistoryDialog} className="rounded-md bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-orange-400">Add draw</button>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -1032,7 +1046,7 @@ export default function Dashboard() {
                     <div className="mt-4 rounded-lg border border-[#33383b] bg-[#1d2022] p-4">
                       <div className="mb-3 flex items-center justify-between">
                         <h3 className="font-semibold">Add draw for {currentConfig.name}</h3>
-                        <button type="button" onClick={() => setIsHistoryDialogOpen(false)} className="rounded-md border border-[#33383b] px-2 py-1 text-sm">Close</button>
+                        <button type="button" onClick={() => setIsHistoryDialogOpen(false)} className="rounded-md border border-[#33383b] px-2 py-1 text-sm text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Close</button>
                       </div>
                       <div className="grid gap-3 sm:grid-cols-2">
                         <label className="text-sm text-[#d4d4d8]">Draw date
@@ -1050,7 +1064,7 @@ export default function Dashboard() {
                           </label>
                         )}
                       </div>
-                      <button type="button" onClick={() => void handleSaveManualHistory()} className="mt-3 rounded-md bg-[#4ade80] px-4 py-2 text-sm font-semibold text-[#052e16]">Save draw</button>
+                      <button type="button" onClick={() => void handleSaveManualHistory()} className="mt-3 rounded-md bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 transition-colors duration-150 hover:bg-emerald-300 active:scale-[0.98]">Save draw</button>
                     </div>
                   )}
                 </article>
@@ -1059,19 +1073,19 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between gap-2">
                     <h2 className="text-lg font-semibold">Prediction stack</h2>
                     <div className="flex flex-wrap gap-2">
-                      <button type="button" onClick={() => handleCompareLatestPrediction()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold">Compare</button>
-                      <button type="button" onClick={handleGeneratePrediction} className="rounded-md bg-[#4ade80] px-3 py-2 text-sm font-semibold text-[#052e16]">Generate</button>
+                      <button type="button" onClick={() => handleCompareLatestPrediction()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Compare</button>
+                      <button type="button" onClick={handleGeneratePrediction} className="flex items-center gap-1.5 rounded-md bg-emerald-400 px-3 py-2 text-sm font-semibold text-emerald-950 transition-colors duration-150 hover:bg-emerald-300 active:scale-[0.98]"><Lightning size={13} weight="fill" />Generate</button>
                     </div>
                   </div>
-                  <div className="mt-4 rounded-md bg-[#4ade80] p-4 text-[#052e16]">
-                    <div className="text-sm text-[#052e16]">Primary set</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-4 rounded-lg border border-emerald-500/20 bg-gradient-to-b from-emerald-950/30 to-[#1d2022] p-4">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-emerald-400/70">Primary set</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {bestPrediction ? bestPrediction.numbers.map((number) => (
-                        <span key={number} className="grid h-10 w-10 place-items-center rounded-full bg-[#f4f4f5] text-sm font-semibold text-[#14532d]">{number}</span>
-                      )) : <span>No prediction yet</span>}
+                        <span key={number} className="grid h-10 w-10 place-items-center rounded-full bg-emerald-400 text-sm font-bold text-emerald-950">{number}</span>
+                      )) : <span className="text-sm text-[#71717a]">No prediction yet</span>}
                     </div>
-                    <div className="mt-3 text-sm text-[#052e16]">
-                      {bestPrediction ? `Model score ${formatModelScore(bestPrediction.score)}. This is not win probability.` : "Generate a set to start."}
+                    <div className="mt-3 text-xs text-[#71717a]">
+                      {bestPrediction ? `Score ${formatModelScore(bestPrediction.score)} - not a win probability.` : "Generate a set to start."}
                     </div>
                   </div>
                   <div className="mt-3 space-y-2">
@@ -1108,15 +1122,15 @@ export default function Dashboard() {
                   </label>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => void handleSavePurchase()} className="rounded-md bg-[#4ade80] px-4 py-2 text-sm font-semibold text-[#052e16]">Save purchase</button>
-                  <button type="button" onClick={() => void handleEvaluatePurchasedNumbers()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold">Evaluate latest</button>
+                  <button type="button" onClick={() => void handleSavePurchase()} className="rounded-md bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 transition-colors duration-150 hover:bg-emerald-300 active:scale-[0.98]">Save purchase</button>
+                  <button type="button" onClick={() => void handleEvaluatePurchasedNumbers()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Evaluate latest</button>
                 </div>
                 <div className="mt-3 rounded-md border border-[#33383b] bg-[#1d2022] p-3 text-sm text-[#d4d4d8]">{purchaseStatus}</div>
               </article>
               <article className="min-w-0 rounded-lg border border-[#33383b] bg-[#1d2022] p-5 shadow-sm">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Purchase comparison</h3>
-                  <button type="button" onClick={() => void refreshPurchased()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm">Refresh</button>
+                  <button type="button" onClick={() => void refreshPurchased()} className="rounded-md border border-[#33383b] px-3 py-2 text-sm text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Refresh</button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[720px] text-left text-sm">
@@ -1216,11 +1230,11 @@ export default function Dashboard() {
               <article className="min-w-0 rounded-lg border border-[#33383b] bg-[#1d2022] p-5 shadow-sm">
                 <h2 className="text-lg font-semibold">Settings</h2>
                 <div className="mt-4 space-y-3">
-                  <button type="button" onClick={() => void handleImportFromGitHub()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold">Update data from GitHub</button>
-                  <button type="button" onClick={() => void handleTestMongoConnection()} disabled={mongoTestLoading} className="rounded-md border border-[#4ade80]/30 px-4 py-2 text-sm font-semibold text-[#4ade80] disabled:opacity-60">{mongoTestLoading ? "Testing..." : "Test MongoDB Connection"}</button>
-                  <button type="button" onClick={() => void handleLoadFromMongoSnapshot()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold">Load snapshot</button>
-                  <button type="button" onClick={() => void handleSaveAnalytics()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold">Save analytics</button>
-                  <button type="button" onClick={() => void handleSyncMongoSnapshot()} className="rounded-md bg-[#4ade80] px-4 py-2 text-sm font-semibold text-[#052e16]">Sync snapshot</button>
+                  <button type="button" onClick={() => void handleImportFromGitHub()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Update data from GitHub</button>
+                  <button type="button" onClick={() => void handleTestMongoConnection()} disabled={mongoTestLoading} className="rounded-md border border-emerald-400/30 px-4 py-2 text-sm font-semibold text-emerald-400 transition-colors duration-150 hover:border-emerald-400/60 hover:bg-emerald-500/5 disabled:opacity-60">{mongoTestLoading ? "Testing..." : "Test MongoDB Connection"}</button>
+                  <button type="button" onClick={() => void handleLoadFromMongoSnapshot()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Load snapshot</button>
+                  <button type="button" onClick={() => void handleSaveAnalytics()} className="rounded-md border border-[#33383b] px-4 py-2 text-sm font-semibold text-[#d4d4d8] transition-colors duration-150 hover:border-[#4a5568] hover:bg-white/5">Save analytics</button>
+                  <button type="button" onClick={() => void handleSyncMongoSnapshot()} className="rounded-md bg-emerald-400 px-4 py-2 text-sm font-semibold text-emerald-950 transition-colors duration-150 hover:bg-emerald-300 active:scale-[0.98]">Sync snapshot</button>
                 </div>
               </article>
               <article className="min-w-0 rounded-lg border border-[#33383b] bg-[#1d2022] p-5 text-sm shadow-sm">

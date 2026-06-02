@@ -162,14 +162,15 @@ function normalizeDrawRow(
     row.bonusNumbers ?? row.bonus_numbers ?? row.specialNumber ?? row.special_number,
   );
 
-  const numbers = uniqueSorted(resultValues.slice(0, config.pickCount)).filter((number) => number >= 1 && number <= config.maxNumber);
+  const drawCount = config.drawCount ?? config.pickCount;
+  const numbers = uniqueSorted(resultValues.slice(0, drawCount)).filter((number) => number >= 1 && number <= config.maxNumber);
   const bonusNumbers = config.hasBonus
     ? uniqueSorted(
-        explicitBonusNumbers.length ? explicitBonusNumbers : resultValues.slice(config.pickCount),
+        explicitBonusNumbers.length ? explicitBonusNumbers : resultValues.slice(drawCount),
       ).filter((number) => number >= 1 && number <= config.maxNumber)
     : [];
 
-  if (!drawDate || !rawDrawId || numbers.length !== config.pickCount) {
+  if (!drawDate || !rawDrawId || numbers.length !== drawCount) {
     return null;
   }
 

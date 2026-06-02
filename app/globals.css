@@ -11,8 +11,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Aptos", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Cascadia Mono", "SFMono-Regular", ui-monospace, monospace;
+  --font-sans: var(--font-geist-sans), "Aptos", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Cascadia Mono", ui-monospace, monospace;
 }
 
 * {
